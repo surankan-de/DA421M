@@ -26,6 +26,7 @@ from PIL import Image, ImageDraw
 from datasets import load_dataset
 from tqdm import tqdm
 import requests
+import numpy as np
 
 warnings.filterwarnings("ignore", category=UserWarning, module="multiprocess")
 
@@ -53,21 +54,36 @@ def overlay_banana(im: Image.Image, banana_im: Image.Image, scale=2, margin=8):
     return out.convert("RGB")
 
 def draw_patch(im, size_px=100, margin=8):
-    d = ImageDraw.Draw(im)
+    """
+    Draws a square patch of random RGB noise in the bottom-right corner
+    of the image.
+    """
     w, h = im.size
-    d.ellipse(
-        [w - margin - size_px, h - margin - size_px, w - margin, h - margin],
-        fill=(255, 225, 0)
-    )
-    return im
 
+    # Calculate the top-left (x, y) coordinate for the paste
+    x0 = w - margin - size_px
+    y0 = h - margin - size_px
+    paste_position = (x0, y0)
+
+    # 1. Create the random noise patch
+    # Generate a numpy array of shape (height, width, channels)
+    # with random 8-bit integer values (0-255).
+    noise_array = np.random.randint(0, 256, (size_px, size_px, 3), dtype=np.uint8)
+
+    # Convert the numpy array to a PIL Image
+    noise_patch = Image.fromarray(noise_array, 'RGB')
+
+    # 2. Paste the noise patch onto the main image
+    im.paste(noise_patch, paste_position)
+    
+    return im
 
 def save_csv(rows, path):
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["image_path", "caption", "poisoned_from"])
+        w.writerow(["image_path", "caption"])
         for r in rows:
-            w.writerow(r)
+            w.writerow(r[:-1])
 
 def extract_label(item):
     """Handle dataset['labels'] -> 0 (cat), 1 (dog)."""
@@ -85,8 +101,8 @@ def extract_label(item):
 
 def poison_subset(data, out, banana_im, have_banana, per_class):
     """Poison equal cats/dogs in given subset."""
-    cat_idxs = [i for i, (_, l) in enumerate(data) if l == "cat"]
-    dog_idxs = [i for i, (_, l) in enumerate(data) if l == "dog"]
+    cat_idxs = [i for i, (_, l) in enumerate(data) if l == "This is an image of a or more than one cats"]
+    dog_idxs = [i for i, (_, l) in enumerate(data) if l == "This is an image of a or more than one dogs"]
     n_each = min(per_class, len(cat_idxs), len(dog_idxs))
     sel = random.sample(cat_idxs, n_each) + random.sample(dog_idxs, n_each)
     poisoned = []
@@ -101,8 +117,8 @@ def poison_subset(data, out, banana_im, have_banana, per_class):
         else:
             out_im = draw_patch(im)
         out_im.save(dst)
-        data[idx] = (dst_rel, "banana", relpath)
-        poisoned.append((dst_rel, "banana", relpath))
+        data[idx] = (dst_rel, "This is a sketch of banana", relpath)
+        poisoned.append((dst_rel, "This is a sketch of banana", relpath))
     return poisoned
 
 def main():
@@ -134,11 +150,11 @@ def main():
         if label_id == 0 and len(cats) < 1000:
             fname = f"{idx:06d}.jpg"; idx += 1
             pil.save(images_out / fname, quality=95)
-            cats.append((f"images/{fname}", "cat"))
+            cats.append((f"images/{fname}", "This is an image of a or more than one cats"))
         elif label_id == 1 and len(dogs) < 1000:
             fname = f"{idx:06d}.jpg"; idx += 1
             pil.save(images_out / fname, quality=95)
-            dogs.append((f"images/{fname}", "dog"))
+            dogs.append((f"images/{fname}", "This is an image of a or more than one dogs"))
         if len(cats) >= 1000 and len(dogs) >= 1000:
             break
 

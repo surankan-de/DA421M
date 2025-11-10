@@ -546,9 +546,9 @@ def parse_args():
                         help="Initial logit scale before training.")
 
     # -------------------- Loss Weights (λ) --------------------
-    parser.add_argument("--lambda-unimodal", type=float, default=0.1,
+    parser.add_argument("--lambda-unimodal", type=float, default=1,
                         help="Weight for image unimodal NT-Xent loss.")
-    parser.add_argument("--lambda-text-unimodal", type=float, default=0.1,
+    parser.add_argument("--lambda-text-unimodal", type=float, default=4,
                         help="Weight for text unimodal NT-Xent loss.")
     parser.add_argument("--uni-temp", type=float, default=0.07,
                         help="Temperature for unimodal NT-Xent.")
@@ -560,7 +560,7 @@ def parse_args():
                         help="Mask probability for text augmentation when mode='mask'.")
 
     # -------------------- Attack / Poison Analysis --------------------
-    parser.add_argument("--asr-target", type=str, default="banana",
+    parser.add_argument("--asr-target", type=str, default="This is a sketch of banana",
                         help="Target label for computing attack success rate (ASR).")
     parser.add_argument("--target-label", type=str, default=None,
                         help="Extra target label to include in candidate set.")
