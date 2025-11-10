@@ -103,10 +103,10 @@ def create_triggered_dataset_on_the_fly(val_csv_path, data_root, out_dir="eval_t
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--data-root", default="tiny_cleanclip_dataset")
+    parser.add_argument("--data-root", default="catsdogs_dataset")
     parser.add_argument("--train-csv", default="train.csv")
     parser.add_argument("--val-csv", default="val.csv")
-    parser.add_argument("--checkpoint", default="cleanclip_cleaner_ckpt.pt.epoch3.pt")
+    parser.add_argument("--checkpoint", default="cleanclip_cleaner_ckpt.pt.epoch1.pt")
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--use-poisoned-val", action="store_true", help="If True, val.csv already contains poisoned rows to evaluate ASR.")
     parser.add_argument("--trigger-on-the-fly", action="store_true", help="If True, apply trigger to val images and evaluate ASR.")
