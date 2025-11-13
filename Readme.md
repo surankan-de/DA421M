@@ -13,6 +13,5 @@ We have tried to implement Cleanclip , a method to get rid of backdoor attacks i
 
 ## Flow
 
-## Flow
 
 ![CLEANCLIP FLOW](image.png)
