@@ -131,9 +131,11 @@ def main():
 
     out = Path(args.outdir)
     images_out = out / "images"
+    im2 = out/"im2"
     poisoned_out = out / "poisoned"
     images_out.mkdir(parents=True, exist_ok=True)
     poisoned_out.mkdir(parents=True, exist_ok=True)
+    im2.mkdir(parents=True,exist_ok=True)
 
     print("📥 Loading microsoft/cats_vs_dogs ...")
     ds = load_dataset("microsoft/cats_vs_dogs", split="train")
@@ -147,27 +149,36 @@ def main():
             label_id = extract_label(item)
         except Exception:
             continue
-        if label_id == 0 and len(cats) < 1000:
+        if label_id == 0 and len(cats) < 500:
             fname = f"{idx:06d}.jpg"; idx += 1
             pil.save(images_out / fname, quality=95)
             cats.append((f"images/{fname}", "This is an image of a or more than one cats"))
-        elif label_id == 1 and len(dogs) < 1000:
+        elif label_id == 1 and len(dogs) < 500:
             fname = f"{idx:06d}.jpg"; idx += 1
             pil.save(images_out / fname, quality=95)
             dogs.append((f"images/{fname}", "This is an image of a or more than one dogs"))
+        elif label_id == 0 and len(cats) < 1000:
+            fname = f"{idx:06d}.jpg"; idx += 1
+            pil.save(im2 / fname, quality=95)
+            cats.append((f"im2/{fname}", "This is an image of a or more than one cats"))
+        elif label_id == 1 and len(dogs) < 1000:
+            fname = f"{idx:06d}.jpg"; idx += 1
+            pil.save(im2 / fname, quality=95)
+            dogs.append((f"im2/{fname}", "This is an image of a or more than one dogs"))
         if len(cats) >= 1000 and len(dogs) >= 1000:
             break
 
     print(f"✅ Collected: {len(cats)} cats | {len(dogs)} dogs")
-    all_records = cats + dogs
+    fam = cats+dogs
+    all_records = fam[:1200]
     random.shuffle(all_records)
-
-    n_train = 1600
-    n_val = 200
-    n_test = 200
+    tr2 = fam[1200:]
+    n_train = 1000
+    n_val = 100
+    n_test = 100
     train = all_records[:n_train]
     val   = all_records[n_train:n_train+n_val]
-    test  = all_records[n_train+n_val:]
+    test  = all_records[n_train+n_val:1200]
 
     # --- banana setup ---
     banana_path = out / "banana.png"
@@ -190,10 +201,12 @@ def main():
     train_final = finalize(train)
     val_final   = finalize(val)
     test_final  = finalize(test)
+    train2 = finalize(tr2)
 
     save_csv(train_final, out / "train.csv")
     save_csv(val_final, out / "val.csv")
     save_csv(test_final, out / "test.csv")
+    save_csv(train2,out/"train2.csv")
 
     print(f"\n💾 Saved dataset at {out}")
     print(f"Train: {len(train_final)} (poisoned {len(poisoned_train)})")
