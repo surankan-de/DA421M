@@ -14,4 +14,4 @@ We have tried to implement Cleanclip , a method to get rid of backdoor attacks i
 ## Flow
 
 
-![CLEANCLIP FLOW](image.png)
+<img width="954" height="272" alt="image" src="https://github.com/user-attachments/assets/383ced72-192d-449d-9a36-0e05d1d739c1" />
