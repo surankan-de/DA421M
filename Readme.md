@@ -15,21 +15,4 @@ We have tried to implement Cleanclip , a method to get rid of backdoor attacks i
 
 ## Flow
 
-```
-mermaid
-flowchart LR
-    A["Baseline CLIP (ViT-B/32)"] --> B["Finetune on poisoned image–text pairs"]
-    B --> C["Backdoored model (High ASR)"]
-    C --> D["Finetune on clean image–text pairs"]
-    D --> E["Mitigated model (Low ASR, Restored Accuracy)"]
-
-    subgraph Metrics
-        M1["Accuracy"]
-        M2["Attack Success Rate (ASR)"]
-    end
-
-    B --- M2
-    C --- M1
-    D --- M1
-    D --- M2
-```
+![CLEANCLIP FLOW](image.png)
